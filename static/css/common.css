@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('/static/images/background.jpg');
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;  /* Increase container size */
+    margin: auto;
+    background: rgba(0, 0, 0, 0.8);  /* Black background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* Ensure positioning context for logo */
+    color: white;  /* White text */
+}
+
+header {
+    display: flex;
+    justify-content: center; /* Center the title */
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative; /* Ensure positioning context for logo */
+}
+
+.nav {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.nav img {
+    width: 75px;   /* Adjust size as needed */
+    height: 75px;  /* Adjust size as needed */
+    border-radius: 50%; /* Round shape */
+    object-fit: cover;
+}
+
+header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+textarea {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: black;  /* Black background for textarea */
+    color: white;  /* White text for textarea */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+footer {
+    text-align: center;
+    margin-top: auto;
+    padding: 10px 0;
+    background: rgba(255, 255, 255, 0.8);
+    color: black;  /* Black text for footer */
+}
+
+.container a {
+    color: white;  /* White text for anchor tags */
+    text-decoration: none;
+}
+
+.container a:hover {
+    text-decoration: underline;  /* Underline on hover */
+}

@@ -1,9 +1,11 @@
-import streamlit as st
 import pickle
 import re
 import nltk
 import logging
+from flask import Flask, request, render_template, redirect, url_for
 from PyPDF2 import PdfReader  # Corrected import for PDF text extraction
+from werkzeug.utils import secure_filename
+import os
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -11,9 +13,19 @@ nltk.download('stopwords')
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Loading models
+# Load models
 clf = pickle.load(open('clf.pkl', 'rb'))
 tfidfd = pickle.load(open('tfidf.pkl', 'rb'))
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf'}
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def clean_resume(resume_text):
     clean_text = re.sub(r'http\S+\s*', ' ', resume_text)
@@ -25,37 +37,42 @@ def clean_resume(resume_text):
     clean_text = re.sub(r'\s+', ' ', clean_text)
     return clean_text
 
-def read_pdf(file):
-    pdf_reader = PdfReader(file)
+def read_pdf(file_path):
+    pdf_reader = PdfReader(file_path)
     text = ""
     for page in pdf_reader.pages:
         text += page.extract_text()
     return text
 
-def main():
-    st.title("Resume Screening App")
-    uploaded_file = st.file_uploader('Upload Resume', type=['txt', 'pdf'])
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    if uploaded_file is not None:
-        if uploaded_file.type == "application/pdf":
-            resume_text = read_pdf(uploaded_file)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect(request.url)
+
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        if filename.rsplit('.', 1)[1].lower() == 'pdf':
+            resume_text = read_pdf(file_path)
         else:
             try:
-                resume_bytes = uploaded_file.read()
-                resume_text = resume_bytes.decode('utf-8')
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    resume_text = f.read()
             except UnicodeDecodeError:
-                resume_text = resume_bytes.decode('latin-1')
+                with open(file_path, 'r', encoding='latin-1') as f:
+                    resume_text = f.read()
 
         logging.info(f"Original Resume Text: {resume_text}")
 
-        st.subheader("Original Resume Text")
-        st.text_area("Original Resume", resume_text, height=300)
-
         cleaned_resume = clean_resume(resume_text)
         logging.info(f"Cleaned Resume Text: {cleaned_resume}")
-
-        st.subheader("Cleaned Resume Text")
-        st.text_area("Cleaned Resume", cleaned_resume, height=300)
 
         input_features = tfidfd.transform([cleaned_resume])
         logging.info(f"TF-IDF Features: {input_features}")
@@ -94,8 +111,9 @@ def main():
         category_name = category_mapping.get(prediction_id, "Unknown")
         logging.info(f"Predicted Category Name: {category_name}")
 
-        st.subheader("Predicted Category")
-        st.write(category_name)
+        return render_template('result.html', original_resume=resume_text, cleaned_resume=cleaned_resume, category_name=category_name)
 
-if __name__ == "__main__":
-    main()
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+<body>
+    <div class="nav">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo">
+    </div>
+    <div class="container">
+        <header>
+            <h1>Resume Screening Results</h1>
+        </header>
+        <h2>Original Resume Text</h2>
+        <textarea rows="15" readonly>{{ original_resume }}</textarea>
+        <h2>Cleaned Resume Text</h2>
+        <textarea rows="15" readonly>{{ cleaned_resume }}</textarea>
+        <h2>Predicted Category</h2>
+        <p>{{ category_name }}</p>
+        <a href="{{ url_for('index') }}">Upload Another Resume</a>
+    </div>
+    <footer>
+        Made by Aryaman
+    </footer>
+</body>
+</html>

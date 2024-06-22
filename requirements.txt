@@ -1,4 +1,4 @@
-streamlit
+Flask
 scikit-learn
 nltk
 numpy
