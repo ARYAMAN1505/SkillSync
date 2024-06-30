@@ -79,3 +79,10 @@ footer {
 .container a:hover {
     text-decoration: underline;  /* Underline on hover */
 }
+.z{
+    color: white;
+}
+h1{
+    text-align: center;
+    color: black;
+}
